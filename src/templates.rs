@@ -2,6 +2,7 @@
 //! Wrapper for DSIG Nodes Templating
 //!
 
+use libxml::tree::Node;
 use openssl::x509::X509;
 
 use crate::bindings;
@@ -74,6 +75,8 @@ pub struct XmlDocumentTemplateBuilder<'d> {
     refsig: XmlSecSignatureMethod,
 
     ns_prefix: Option<String>,
+
+    parent_node: Option<Node>, 
 }
 
 pub struct SignatureNode<'a> {
@@ -328,6 +331,8 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
             refsig: XmlSecSignatureMethod::Sha1,
 
             ns_prefix: None,
+
+            parent_node : None, 
         }
     }
 
@@ -357,12 +362,18 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
         } else {
             return Err(XmlSecError::RootNotFound);
         };
-
         unsafe {
-            libxml::bindings::xmlAddChild(
-                rootptr as *mut libxml::bindings::_xmlNode,
-                node as *mut libxml::bindings::_xmlNode,
-            )
+            if let Some(parent_node) = self.parent_node {
+                libxml::bindings::xmlAddChild(
+                    parent_node as *mut libxml::bindings::_xmlNode,
+                    node as *mut libxml::bindings::_xmlNode,
+                )
+            } else {
+                libxml::bindings::xmlAddChild(
+                    rootptr as *mut libxml::bindings::_xmlNode,
+                    node as *mut libxml::bindings::_xmlNode,
+                )
+            }
         };
 
         Ok(SignatureNode {
@@ -427,11 +438,5 @@ impl<'a> SignatureNode<'a> {
         // }
     }
 
-    pub fn add_child(&self, root: &mut Node){
-        let parent = root.node_ptr() as *mut bindings::xmlNode;
-        unsafe {
-            bindings::xmlAddChild(parent, self.node);
-        }
 
-    }
 }
