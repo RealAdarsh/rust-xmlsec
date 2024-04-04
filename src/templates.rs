@@ -362,18 +362,19 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
         } else {
             return Err(XmlSecError::RootNotFound);
         };
+
+        let parent_ptr = if let Some(parent_node) = self.parent_node{
+            parent_node.node_ptr() as *mut bindings::xmlNode
+        }else{
+            rootptr
+        }; 
+
+
         unsafe {
-            if let Some(parent_node) = self.parent_node {
-                libxml::bindings::xmlAddChild(
-                    parent_node as *mut libxml::bindings::_xmlNode,
-                    node as *mut libxml::bindings::_xmlNode,
-                )
-            } else {
-                libxml::bindings::xmlAddChild(
-                    rootptr as *mut libxml::bindings::_xmlNode,
-                    node as *mut libxml::bindings::_xmlNode,
-                )
-            }
+            libxml::bindings::xmlAddChild(
+                parent_ptr as *mut libxml::bindings::_xmlNode,
+                node as *mut libxml::bindings::_xmlNode,
+            )
         };
 
         Ok(SignatureNode {
