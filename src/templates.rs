@@ -404,6 +404,12 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
         self.ns_prefix = Some(ns_prefix.to_owned());
         self
     }
+
+    ///  to add the child 
+    pub fn parent_node(mut self, node : Node)-> Self{
+        self.parent_node = Some(node); 
+        self
+    }
 }
 
 impl<'a> SignatureNode<'a> {
