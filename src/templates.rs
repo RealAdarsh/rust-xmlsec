@@ -426,4 +426,12 @@ impl<'a> SignatureNode<'a> {
         //     }
         // }
     }
+
+    pub fn add_child(&self, root: &mut Node){
+        let parent = root.node_ptr() as *mut bindings::xmlNode;
+        unsafe {
+            bindings::xmlAddChild(parent, self.node);
+        }
+
+    }
 }
