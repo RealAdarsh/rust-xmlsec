@@ -77,6 +77,8 @@ pub struct XmlDocumentTemplateBuilder<'d> {
     ns_prefix: Option<String>,
 
     parent_node: Option<Node>, 
+
+    attribute : Option<String>, 
 }
 
 pub struct SignatureNode<'a> {
@@ -333,6 +335,8 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
             ns_prefix: None,
 
             parent_node : None, 
+
+            attribute : None, 
         }
     }
 
@@ -347,12 +351,20 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
             }
         };
 
+        let c_attribute = {
+            if let Some(attribute) =self.attribute{
+                CString::new(attribute).unwrap().into_raw() as *const c_uchar
+            }else{
+                null()
+            }
+        }; 
+
         let node = unsafe {
             bindings::xmlSecTmplSignatureCreateNsPref(
                 docptr,
                 self.c14n.to_method(),
                 self.sig.to_method(),
-                null(),
+                c_attribute,
                 c_ns_prefix,
             )
         };
@@ -408,6 +420,13 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
     ///  to add the child 
     pub fn parent_node(mut self, node : Node)-> Self{
         self.parent_node = Some(node); 
+        self
+    }
+
+
+    ///  to add the attribute to signature node 
+    pub fn attribute(mut self, str: String) -> Self{
+        self.attribute = Some(str); 
         self
     }
 }
