@@ -425,8 +425,8 @@ impl<'a> XmlDocumentTemplateBuilder<'a> {
 
 
     ///  to add the attribute to signature node 
-    pub fn attribute(mut self, str: String) -> Self{
-        self.attribute = Some(str); 
+    pub fn attribute(mut self, attr: &str) -> Self {
+        self.attribute = Some(attr.to_owned());
         self
     }
 }
